@@ -140,7 +140,7 @@ export default function NewMaterialPage() {
         </div>
 
         <div 
-          className={`w-full rounded-3xl p-8 md:p-10 shadow-xl space-y-8 transition-all ${loading ? 'opacity-70 pointer-events-none' : ''}`}
+          className={`w-full rounded-3xl p-8 md:p-10 shadow-xl space-y-8 transition-all relative ${loading ? 'opacity-70 pointer-events-none' : ''}`}
           style={{ backgroundColor: "#FFFDF8", border: "1px solid #E8E2D8" }}
         >
           {loading && (
@@ -156,15 +156,20 @@ export default function NewMaterialPage() {
               Upload Document
             </h3>
             <div 
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+              onClick={() => { if (!isDragging) fileInputRef.current?.click(); }}
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); }}
+              onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); }}
               onDrop={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 setIsDragging(false);
-                if (e.dataTransfer.files?.[0]) {
-                  processFile(e.dataTransfer.files[0]);
+                const file = e.dataTransfer.files?.[0];
+                if (!file) return;
+                if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+                  setModalState({ isOpen: true, title: "Invalid File", desc: "Only PDF files are supported. Please drop a .pdf file." });
+                  return;
                 }
+                processFile(file);
               }}
               className={`border-2 border-dashed rounded-2xl p-8 text-center flex flex-col items-center gap-3 cursor-pointer transition-colors ${isDragging ? 'bg-[#EDE8DE] border-[#8A7D6B]' : 'hover:bg-gray-50'}`}
               style={{ borderColor: isDragging ? '#8A7D6B' : '#E8E2D8' }}
@@ -173,9 +178,14 @@ export default function NewMaterialPage() {
                 type="file" 
                 className="hidden" 
                 ref={fileInputRef} 
-                accept=".pdf" 
+                accept=".pdf,application/pdf" 
                 onChange={(e) => {
-                  if (e.target.files?.[0]) processFile(e.target.files[0]);
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    processFile(file);
+                    // Reset so the same file can be re-selected if needed
+                    e.target.value = '';
+                  }
                 }} 
               />
               <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors" style={{ backgroundColor: isDragging ? "#2D2A26" : "#EDE8DE", color: isDragging ? "#FFFDF8" : "#8A7D6B" }}>

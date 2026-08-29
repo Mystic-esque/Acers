@@ -29,17 +29,21 @@ export async function POST(req: NextRequest) {
     
     let rawContent = '';
     try {
-      const { PDFParse } = eval("require('pdf-parse')");
-      const parser = new PDFParse({ data: buffer });
-      const pdfData = await parser.getText();
-      rawContent = pdfData.text;
+      // pdf-parse is a plain async function: pdfParse(buffer) => { text, numpages, ... }
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const pdfParse = require('pdf-parse');
+      const pdfData = await pdfParse(buffer);
+      rawContent = pdfData.text || '';
+      if (!rawContent.trim()) {
+        return NextResponse.json({ error: 'Could not extract text from this PDF. It may be a scanned image or have no selectable text.' }, { status: 400 });
+      }
     } catch (e) {
       console.error("PDF Parse error:", e);
       return NextResponse.json({ error: 'Failed to extract text from PDF. It might be scanned or corrupted.' }, { status: 400 });
     }
 
-    // Simple cleanup: replace multiple newlines with double newlines
-    rawContent = rawContent.replace(/\n\s*\n/g, '\\n\\n');
+    // Clean up extra whitespace while preserving paragraph breaks
+    rawContent = rawContent.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 
     // 1. Upload file to Supabase Storage
     const fileName = `${user.id}/${Date.now()}_${file.name}`;
