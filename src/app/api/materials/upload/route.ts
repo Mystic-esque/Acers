@@ -29,6 +29,17 @@ export async function POST(req: NextRequest) {
     
     let rawContent = '';
     try {
+      // Polyfill globals for pdf-parse (pdfjs-dist) in Node.js
+      if (typeof global.DOMMatrix === 'undefined') {
+        (global as any).DOMMatrix = class DOMMatrix {};
+      }
+      if (typeof global.ImageData === 'undefined') {
+        (global as any).ImageData = class ImageData {};
+      }
+      if (typeof global.Path2D === 'undefined') {
+        (global as any).Path2D = class Path2D {};
+      }
+
       const { PDFParse } = eval("require('pdf-parse')");
       const parser = new PDFParse({ data: buffer });
       const pdfData = await parser.getText();
