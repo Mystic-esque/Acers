@@ -32,10 +32,10 @@ export async function POST(req: Request) {
     }
 
     // Check if we already generated and saved the overview
-    const fileName = `overviews/${materialId}_overview.wav`;
+    const fileName = `overviews/${materialId}_overview_v2.wav`;
     
     // Check if the file exists using list
-    const { data: files } = await supabase.storage.from('materials').list('overviews', { search: `${materialId}_overview.wav` });
+    const { data: files } = await supabase.storage.from('materials').list('overviews', { search: `${materialId}_overview_v2.wav` });
     if (files && files.length > 0 && (files[0].metadata?.size ?? 0) > 0) {
       const { data: publicUrlData } = supabase.storage.from('materials').getPublicUrl(fileName);
       return NextResponse.json({ audioUrl: publicUrlData.publicUrl });
