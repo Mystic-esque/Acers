@@ -87,7 +87,7 @@ Return JSON with a "dialogue" array containing objects with "speaker" (either "H
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: "Read the following podcast script. Use distinct inflection for Alex and Jordan if possible. Script: " + fullScript }] }],
+          contents: [{ role: 'user', parts: [{ text: fullScript }] }],
           generationConfig: { responseModalities: ["AUDIO"] }
         }),
       });
@@ -96,7 +96,7 @@ Return JSON with a "dialogue" array containing objects with "speaker" (either "H
     let ttsResponse = await requestTts('gemini-2.5-flash-preview-tts');
     
     // If rate limited or error, fallback to 3.1
-    if (!ttsResponse.ok && (ttsResponse.status === 429 || ttsResponse.status >= 500)) {
+    if (!ttsResponse.ok) {
       console.warn(`2.5 TTS failed with ${ttsResponse.status}, falling back to gemini-3.1-flash-preview-tts`);
       ttsResponse = await requestTts('gemini-3.1-flash-preview-tts');
     }
