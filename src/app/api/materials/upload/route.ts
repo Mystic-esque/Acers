@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { extractText, getDocumentProxy } from 'unpdf';
 
-// Use Node.js runtime for file processing and pdf-parse
+// Use Node.js runtime for file processing
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
@@ -23,33 +24,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Extract text from PDF
+    // Extract text from PDF using unpdf (serverless-compatible, no native deps)
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
+    const uint8Array = new Uint8Array(arrayBuffer);
+
     let rawContent = '';
     try {
-      // Polyfill globals for pdf-parse (pdfjs-dist) in Node.js
-      if (typeof global.DOMMatrix === 'undefined') {
-        (global as any).DOMMatrix = class DOMMatrix {};
-      }
-      if (typeof global.ImageData === 'undefined') {
-        (global as any).ImageData = class ImageData {};
-      }
-      if (typeof global.Path2D === 'undefined') {
-        (global as any).Path2D = class Path2D {};
-      }
+      const pdf = await getDocumentProxy(uint8Array);
+      const { text } = await extractText(pdf, { mergePages: true });
+      rawContent = text || '';
 
-      const { PDFParse } = eval("require('pdf-parse')");
-      const parser = new PDFParse({ data: buffer });
-      const pdfData = await parser.getText();
-      rawContent = pdfData.text || '';
       if (!rawContent.trim()) {
-        return NextResponse.json({ error: 'Could not extract text from this PDF. It may be a scanned image or have no selectable text.' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'Could not extract text from this PDF. It may be a scanned image or have no selectable text.' },
+          { status: 400 }
+        );
       }
     } catch (e) {
       console.error("PDF Parse error:", e);
-      return NextResponse.json({ error: 'Failed to extract text from PDF. It might be scanned or corrupted.' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Failed to extract text from PDF. It might be scanned or corrupted.' },
+        { status: 400 }
+      );
     }
 
     // Clean up extra whitespace while preserving paragraph breaks
@@ -68,7 +64,7 @@ export async function POST(req: NextRequest) {
         public: false,
         fileSizeLimit: 52428800, // 50MB
       });
-      
+
       // Retry upload
       const retry = await supabase.storage.from('materials').upload(fileName, file);
       storageError = retry.error;
