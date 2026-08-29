@@ -22,6 +22,10 @@ const spaceMono = Space_Mono({
 export const metadata: Metadata = {
   title: "Acers",
   description: "A smart study workspace that turns passive reading into demonstrated learning.",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.svg",
+  },
 };
 
 export default function RootLayout({
