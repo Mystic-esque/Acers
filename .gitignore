@@ -32,6 +32,24 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+*.env
+
+# AI / Agent instructions & metadata
+AGENTS.md
+CLAUDE.md
+.agents/
+.gemini/
+.claude/
+*spec*.md
+*-spec.md
+
+# Scratch & temporary artifacts
+page.html
+test-*.mjs
+test-*.js
+test-*.ts
+.next_old/
+scratch/
 
 # vercel
 .vercel

@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ['pdf-parse'],
+  turbopack: {
+    resolveAlias: {
+      canvas: './empty-module.ts',
+    },
+  },
 };
 
 export default nextConfig;
