@@ -25,6 +25,8 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Headphones,
+  Play,
+  Pause,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { PDFViewerHandle } from "@/components/PDFViewer";
@@ -119,6 +121,19 @@ export function StudyWorkspace({
   // ── Audio Overview State ──
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [audioOverviewUrl, setAudioOverviewUrl] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+    if (isPlayingAudio) {
+      audioRef.current.pause();
+      setIsPlayingAudio(false);
+    } else {
+      audioRef.current.play();
+      setIsPlayingAudio(true);
+    }
+  };
 
   // ── Checkpoint state ──
   const [checkpointActive, setCheckpointActive] = useState(false);
@@ -497,7 +512,23 @@ export function StudyWorkspace({
         {/* Right: timer + actions */}
         <div className="flex items-center gap-2 shrink-0">
           {audioOverviewUrl ? (
-            <audio controls src={audioOverviewUrl} className="h-8 w-48 mr-2" />
+            <div className="flex items-center gap-2 mr-2">
+              <audio ref={audioRef} src={audioOverviewUrl} onEnded={() => setIsPlayingAudio(false)} className="hidden" />
+              <button
+                onClick={toggleAudio}
+                className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 relative
+                  ${isPlayingAudio ? 'bg-indigo-600 text-white shadow-indigo-200' : 'bg-blue-600 text-white hover:scale-105'}
+                `}
+              >
+                {isPlayingAudio && (
+                  <div className="absolute inset-0 bg-indigo-400 rounded-full animate-ping opacity-30" style={{ transform: 'scale(1.4)' }} />
+                )}
+                {isPlayingAudio ? <Pause className="w-4 h-4 z-10" /> : <Play className="w-4 h-4 z-10 ml-0.5" />}
+              </button>
+              <span className="text-xs font-bold text-blue-600 mr-1 animate-in fade-in duration-500">
+                {isPlayingAudio ? "Playing..." : "Listen"}
+              </span>
+            </div>
           ) : (
             <button
               onClick={handleCreateAudioOverview}
