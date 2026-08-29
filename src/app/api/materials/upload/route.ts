@@ -29,10 +29,9 @@ export async function POST(req: NextRequest) {
     
     let rawContent = '';
     try {
-      // pdf-parse is a plain async function: pdfParse(buffer) => { text, numpages, ... }
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const pdfParse = require('pdf-parse');
-      const pdfData = await pdfParse(buffer);
+      const { PDFParse } = eval("require('pdf-parse')");
+      const parser = new PDFParse({ data: buffer });
+      const pdfData = await parser.getText();
       rawContent = pdfData.text || '';
       if (!rawContent.trim()) {
         return NextResponse.json({ error: 'Could not extract text from this PDF. It may be a scanned image or have no selectable text.' }, { status: 400 });
