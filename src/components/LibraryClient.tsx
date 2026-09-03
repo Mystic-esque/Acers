@@ -165,23 +165,23 @@ export function LibraryClient({ materials: initialMaterials }: { materials: any[
         <div className="flex flex-col gap-3">
           {filteredMaterials.map((material) => (
             <Link key={material.id} href={`/materials/${material.id}/study`} className="group">
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#FFFDF8] border border-[#E8E2D8] hover:shadow-md transition-all hover:border-[#D0C9BC]">
-                <div className="w-12 h-12 rounded-xl bg-[#EDE8DE] flex items-center justify-center flex-shrink-0">
+              <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-[#FFFDF8] border border-[#E8E2D8] hover:shadow-md transition-all hover:border-[#D0C9BC]">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#EDE8DE] flex items-center justify-center flex-shrink-0">
                   {material.source_type === "bare_topic" ? (
-                    <Lightbulb className="w-5 h-5 text-[#8A7D6B]" />
+                    <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-[#8A7D6B]" />
                   ) : (
-                    <FileText className="w-5 h-5 text-[#8A7D6B]" />
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-[#8A7D6B]" />
                   )}
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-mono font-bold text-[#2D2A26] truncate">{material.title}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-[#8A7D6B]">
-                    <span>{material.source_type === "bare_topic" ? "Topic" : "Document"}</span>
-                    <span>•</span>
+                  <h3 className="font-mono font-bold text-[#2D2A26] truncate text-sm sm:text-base">{material.title}</h3>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-[10px] sm:text-xs text-[#8A7D6B]">
+                    <span>{material.source_type === "bare_topic" ? "Topic" : "Doc"}</span>
+                    <span className="hidden sm:inline">•</span>
                     <span>{material.concepts?.[0]?.count || 0} Concepts</span>
-                    <span>•</span>
-                    <span>
+                    <span className="hidden sm:inline">•</span>
+                    <span className="w-full sm:w-auto mt-0.5 sm:mt-0">
                       {material.study_sessions?.length > 0 
                         ? `Studied ${formatDistanceToNow(new Date(material.study_sessions[0].started_at))} ago` 
                         : "Never studied"}
@@ -191,9 +191,9 @@ export function LibraryClient({ materials: initialMaterials }: { materials: any[
                 
                 <button 
                   onClick={(e) => handleDelete(e, material.id)}
-                  className="p-3 rounded-xl text-[#8A7D6B] hover:bg-red-50 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all flex-shrink-0"
+                  className="p-2 sm:p-3 rounded-xl text-[#8A7D6B] hover:bg-red-50 hover:text-red-600 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all flex-shrink-0"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </Link>

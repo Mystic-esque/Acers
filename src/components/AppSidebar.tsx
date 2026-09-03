@@ -30,7 +30,7 @@ export function AppSidebar({ userEmail }: AppSidebarProps) {
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userEmail)}&background=2D2A26&color=F8F4EC`;
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#2D2A26] border-r border-[#1A1816] w-64 pt-6 pb-4 px-4 flex-shrink-0 text-[#F8F4EC]">
+    <div className="flex flex-col h-[100dvh] md:h-screen bg-[#2D2A26] border-r border-[#1A1816] w-64 pt-6 pb-4 px-4 flex-shrink-0 text-[#F8F4EC]">
       {/* Brand */}
       <div className="mb-10 px-2">
         <Link href="/" className="flex items-center gap-2">

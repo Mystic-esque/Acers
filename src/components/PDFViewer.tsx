@@ -21,9 +21,11 @@ export interface PDFViewerHandle {
 function PageWrapper({
   pageNum,
   onVisible,
+  containerWidth,
 }: {
   pageNum: number;
   onVisible: (n: number) => void;
+  containerWidth: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -41,20 +43,25 @@ function PageWrapper({
     return () => observer.disconnect();
   }, [pageNum, onVisible]);
 
+  const pageWidth = Math.min(containerWidth, 700);
+
   return (
     <div
       ref={ref}
       data-page-number={pageNum}
-      className="mb-6 shadow-sm border border-gray-200"
-      style={{ backgroundColor: "white" }}
+      className="mb-4 sm:mb-6 shadow-sm border border-gray-200 overflow-hidden"
+      style={{ backgroundColor: "white", width: pageWidth }}
     >
       <Page
         pageNumber={pageNum}
-        width={700} // Standard fixed width for reading
+        width={pageWidth}
         renderTextLayer={true}
         renderAnnotationLayer={true}
         loading={
-          <div className="flex items-center justify-center h-[800px] w-[700px] bg-white text-gray-400">
+          <div 
+            className="flex items-center justify-center bg-white text-gray-400"
+            style={{ height: (pageWidth * 1.414), width: pageWidth }}
+          >
             Loading page {pageNum}...
           </div>
         }
@@ -66,7 +73,23 @@ function PageWrapper({
 export const PDFViewer = forwardRef<PDFViewerHandle, PDFViewerProps>(
   ({ url, onPageVisible, onDocumentLoadSuccess }, ref) => {
     const [numPages, setNumPages] = useState<number>(0);
+    const [containerWidth, setContainerWidth] = useState<number>(700);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container) return;
+      
+      const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          // Subtract padding (px-2 sm:px-4 = approx 16px to 32px), limit to a safe minimum
+          setContainerWidth(Math.max(entry.contentRect.width - 32, 250));
+        }
+      });
+      
+      observer.observe(container);
+      return () => observer.disconnect();
+    }, []);
 
     useImperativeHandle(ref, () => ({
       scrollToPage(pageNum: number) {
@@ -86,7 +109,7 @@ export const PDFViewer = forwardRef<PDFViewerHandle, PDFViewerProps>(
     };
 
     return (
-      <div ref={containerRef} className="flex flex-col items-center py-8">
+      <div ref={containerRef} className="flex flex-col items-center py-4 sm:py-8 px-2 sm:px-4 w-full">
         <Document
           file={url}
           onLoadSuccess={onLoadSuccess}
@@ -105,6 +128,7 @@ export const PDFViewer = forwardRef<PDFViewerHandle, PDFViewerProps>(
             <PageWrapper
               key={`page_${index + 1}`}
               pageNum={index + 1}
+              containerWidth={containerWidth}
               onVisible={(p) => {
                 if (onPageVisible) onPageVisible(p);
               }}

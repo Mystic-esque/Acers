@@ -479,7 +479,7 @@ export function StudyWorkspace({
         </div>
 
         {/* Center: page indicator */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+        <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center">
           <div
             className="flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full"
             style={{
@@ -495,26 +495,27 @@ export function StudyWorkspace({
         </div>
 
         {/* Right: timer + actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 overflow-x-auto no-scrollbar max-w-[60vw]">
           {audioOverviewUrl ? (
-            <audio controls src={audioOverviewUrl} className="h-8 w-48 mr-2" />
+            <audio controls src={audioOverviewUrl} className="h-8 w-32 sm:w-48 mr-1 sm:mr-2 shrink-0" />
           ) : (
             <button
               onClick={handleCreateAudioOverview}
               disabled={isAudioLoading}
-              className="text-xs font-bold px-2.5 py-1 rounded-full border transition-colors hover:bg-blue-50 border-blue-200 text-blue-600 flex items-center gap-1.5 mr-2 disabled:opacity-50"
+              className="text-xs font-bold px-2 sm:px-2.5 py-1 rounded-full border transition-colors hover:bg-blue-50 border-blue-200 text-blue-600 flex items-center gap-1.5 mr-1 sm:mr-2 disabled:opacity-50 shrink-0"
+              title="Generate Audio Overview"
             >
               {isAudioLoading ? (
                 <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
               ) : (
                 <Headphones className="w-3 h-3" />
               )}
-              {isAudioLoading ? "Generating..." : "Audio Overview"}
+              <span className="hidden lg:inline">{isAudioLoading ? "Generating..." : "Audio Overview"}</span>
             </button>
           )}
 
           <div
-            className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
             style={{
               backgroundColor: "#F0ECE2",
               color: "#2D2A26",
@@ -525,21 +526,11 @@ export function StudyWorkspace({
             {formatTime(elapsedTime)}
           </div>
 
-          <button
-            onClick={triggerCheckpoint}
-            className="text-xs font-bold px-2.5 py-1 rounded-full border border-dashed transition-colors hover:bg-[#F0ECE2]"
-            style={{
-              borderColor: "#D0C9BC",
-              color: "#8A7D6B",
-              fontFamily: "var(--font-space-mono)",
-            }}
-          >
-            Checkpoint
-          </button>
+
 
           <button
             onClick={() => setIsChatOpen(!isChatOpen)}
-            className="p-1.5 rounded-lg hover:bg-[#F0ECE2] transition-colors ml-1"
+            className="p-1.5 rounded-lg hover:bg-[#F0ECE2] transition-colors sm:ml-1 shrink-0"
             style={{ color: "#8A7D6B" }}
             title="Toggle Chat Panel"
           >
@@ -548,7 +539,7 @@ export function StudyWorkspace({
 
           <button
             onClick={toggleFullscreen}
-            className="p-1.5 rounded-lg hover:bg-[#F0ECE2] transition-colors"
+            className="hidden md:block p-1.5 rounded-lg hover:bg-[#F0ECE2] transition-colors shrink-0"
             style={{ color: "#8A7D6B" }}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -556,37 +547,39 @@ export function StudyWorkspace({
 
           <button
             onClick={handleEndSession}
-            className="text-xs font-bold px-3 py-1.5 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0"
             style={{
               backgroundColor: "#2D2A26",
               color: "#F8F4EC",
               fontFamily: "var(--font-space-mono)",
             }}
           >
-            End Session
+            End<span className="hidden sm:inline"> Session</span>
           </button>
         </div>
       </div>
 
       {/* ═══════════════════ WORKSPACE ═══════════════════ */}
       <div
-        className={`flex h-screen pt-12 transition-all duration-300 ${checkpointActive ? "blur-sm pointer-events-none" : ""}`}
+        className={`flex h-[100dvh] pt-12 transition-all duration-300 relative ${checkpointActive ? "blur-sm pointer-events-none" : ""}`}
         style={{ backgroundColor: "#F5F1E8" }}
       >
         {isPdf && (
-          <PDFThumbnailSidebar
-            url={pdfUrl!}
-            numPages={totalPages}
-            currentPage={currentPage}
-            onSelectPage={(p) => pdfViewerRef.current?.scrollToPage(p)}
-          />
+          <div className="hidden lg:block h-full border-r border-[#E8E2D8]">
+            <PDFThumbnailSidebar
+              url={pdfUrl!}
+              numPages={totalPages}
+              currentPage={currentPage}
+              onSelectPage={(p) => pdfViewerRef.current?.scrollToPage(p)}
+            />
+          </div>
         )}
         
         {/* ─── LEFT PANE: Document Reader ─── */}
         <div
           ref={readerRef}
           onScroll={handleReaderScroll}
-          className={`h-full overflow-y-auto border-r transition-all duration-300 ${isChatOpen ? "w-[55%]" : "w-full"}`}
+          className={`h-full overflow-y-auto border-r transition-all duration-300 w-full ${isChatOpen ? "lg:w-[55%]" : ""}`}
           style={{ backgroundColor: "#FFFDF8", borderColor: "#E8E2D8" }}
         >
           {isPdf ? (
@@ -597,7 +590,7 @@ export function StudyWorkspace({
               onDocumentLoadSuccess={setTotalPages}
             />
           ) : (
-            <div className="max-w-[680px] mx-auto px-12 py-14">
+            <div className="max-w-[680px] mx-auto px-4 sm:px-12 py-8 sm:py-14">
               {material.source_type === 'uploaded_doc' && !pdfUrl && (
                 <div className="mb-6 p-4 rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm flex flex-col gap-2">
                   <strong className="font-bold">Original PDF missing</strong>
@@ -608,13 +601,13 @@ export function StudyWorkspace({
                 </div>
               )}
               <h1
-                className="text-3xl font-bold mb-8 tracking-tight leading-tight"
+                className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 tracking-tight leading-tight"
                 style={{ color: "#2D2A26", fontFamily: "var(--font-space-mono)" }}
               >
                 {material.title || "Untitled Document"}
               </h1>
 
-              <div className="prose max-w-none leading-[1.85] space-y-5" style={{ color: "#2D2A26" }}>
+              <div className="prose max-w-none leading-[1.85] space-y-5 text-[15px] sm:text-base" style={{ color: "#2D2A26" }}>
                 <MarkdownRenderer content={material.raw_content || ""} />
               </div>
             </div>
@@ -623,7 +616,7 @@ export function StudyWorkspace({
 
         {/* ─── RIGHT PANE: Chat Panel ─── */}
         <div 
-          className={`h-full flex flex-col transition-all duration-300 ${isChatOpen ? "w-[45%]" : "w-0 overflow-hidden border-none"}`} 
+          className={`fixed inset-y-12 right-0 z-40 lg:static lg:h-full flex flex-col transition-transform lg:transition-all duration-300 shadow-2xl lg:shadow-none ${isChatOpen ? "w-[90vw] sm:w-[400px] lg:w-[45%] translate-x-0" : "w-[90vw] sm:w-[400px] lg:w-0 translate-x-full lg:translate-x-0 overflow-hidden border-none"}`} 
           style={{ backgroundColor: "#F5F1E8" }}
         >
           {/* Panel header with smart dropdown */}

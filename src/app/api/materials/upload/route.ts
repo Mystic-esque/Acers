@@ -34,16 +34,19 @@ export async function POST(req: NextRequest) {
       const { text } = await extractText(pdf, { mergePages: true });
       rawContent = text || '';
 
-      if (!rawContent.trim()) {
+      if (!rawContent.trim() || rawContent.trim().length < 50) {
         return NextResponse.json(
-          { error: 'Could not extract text from this PDF. It may be a scanned image or have no selectable text.' },
+          {
+            error:
+              'This PDF appears to be a scanned image or lacks selectable digital text. Acers currently requires text-based PDFs. You can also generate a complete study guide using the "Topic" option!',
+          },
           { status: 400 }
         );
       }
     } catch (e) {
       console.error("PDF Parse error:", e);
       return NextResponse.json(
-        { error: 'Failed to extract text from PDF. It might be scanned or corrupted.' },
+        { error: 'Failed to extract text from PDF. It might be corrupted or protected.' },
         { status: 400 }
       );
     }

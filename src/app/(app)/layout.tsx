@@ -15,11 +15,11 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8F4EC]">
+    <div className="flex items-start min-h-screen bg-[#F8F4EC]">
       <AppSidebar userEmail={user.email || ""} />
       
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen md:pl-0 pt-16 md:pt-0">
+      <div className="flex-1 flex flex-col min-h-screen md:pl-0 pt-16 md:pt-0 w-full min-w-0">
         {/* pt-16 on mobile for the fixed header height */}
         {children}
       </div>

@@ -91,8 +91,14 @@ export default function NewMaterialPage() {
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Upload failed");
+        const err = await res.json().catch(() => ({}));
+        setModalState({
+          isOpen: true,
+          title: "Upload Notice",
+          desc: err.error || "Upload failed. Please try a different document.",
+        });
+        setLoading(false);
+        return;
       }
 
       const { materialId } = await res.json();
@@ -114,8 +120,11 @@ export default function NewMaterialPage() {
 
       router.push(`/materials/${materialId}/study`);
     } catch (error: any) {
-      console.error(error);
-      setModalState({ isOpen: true, title: "Upload Error", desc: error.message });
+      setModalState({
+        isOpen: true,
+        title: "Upload Error",
+        desc: error?.message || "An unexpected error occurred during upload.",
+      });
       setLoading(false);
     }
   };
